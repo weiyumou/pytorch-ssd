@@ -8,8 +8,10 @@ class TrainAugmentation:
             size: the size the of final image.
             mean: mean pixel value per channel.
         """
+
         self.mean = mean
         self.size = size
+        self.std = std
         self.augment = Compose([
             ConvertFromInts(),
             PhotometricDistort(),
@@ -19,7 +21,8 @@ class TrainAugmentation:
             ToPercentCoords(),
             Resize(self.size),
             SubtractMeans(self.mean),
-            lambda img, boxes=None, labels=None: (img / std, boxes, labels),
+            # lambda img, boxes=None, labels=None: (img / std, boxes, labels),
+            self._get_img_box_label,
             ToTensor(),
         ])
 
@@ -33,19 +36,27 @@ class TrainAugmentation:
         """
         return self.augment(img, boxes, labels)
 
+    def _get_img_box_label(self, img, boxes=None, labels=None):
+        return img / self.std, boxes, labels
+
 
 class TestTransform:
     def __init__(self, size, mean=0.0, std=1.0):
+        self.std = std
         self.transform = Compose([
             ToPercentCoords(),
             Resize(size),
             SubtractMeans(mean),
-            lambda img, boxes=None, labels=None: (img / std, boxes, labels),
+            # lambda img, boxes=None, labels=None: (img / std, boxes, labels),
+            self._get_img_box_label,
             ToTensor(),
         ])
 
     def __call__(self, image, boxes, labels):
         return self.transform(image, boxes, labels)
+
+    def _get_img_box_label(self, img, boxes=None, labels=None):
+        return img / self.std, boxes, labels
 
 
 class PredictionTransform:

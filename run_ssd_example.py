@@ -61,6 +61,6 @@ for i in range(boxes.size(0)):
                 1,  # font scale
                 (255, 0, 255),
                 2)  # line type
-path = "run_ssd_example_output.jpg"
+path = "pred.jpg"
 cv2.imwrite(path, orig_image)
 print(f"Found {len(probs)} objects. The output image is {path}")
