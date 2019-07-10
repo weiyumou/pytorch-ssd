@@ -135,7 +135,8 @@ class SSD(nn.Module):
         self.load_state_dict(torch.load(model, map_location=lambda storage, loc: storage))
 
     def save(self, model_path):
-        torch.save(self.state_dict(), model_path)
+        model_to_save = self.module if hasattr(self, 'module') else self
+        torch.save(model_to_save.state_dict(), model_path)
 
 
 class MatchPrior(object):
